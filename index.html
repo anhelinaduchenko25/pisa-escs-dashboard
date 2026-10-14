@@ -40,25 +40,13 @@ footer{margin-top:40px;color:var(--muted);font-size:.85rem}
 <h1>Does family background decide school results?</h1>
 <p class="lead">In every country, students from wealthier, better-educated families tend to score higher in PISA. But the strength of that link differs a lot. Where is school success most tied to the family you were born into, and where do school systems level the field?</p>
 
-<!-- 2. MAP -->
+<!-- 2. MAP (participant 3's map lives in map.html and is embedded here) -->
 <h2>1. World map</h2>
-<div class="card">
-  <div class="controls">
-    <label>Show: <select id="metric">
-      <option value="r2_avg">Strength of ESCS link (R², %)</option>
-      <option value="slope_avg">Points gained per 1 ESCS unit (slope)</option>
-      <option value="mean_avg">Average PISA score</option>
-      <option value="group">System type (A–D)</option>
-    </select></label>
-    <span id="groupFilters"></span>
-  </div>
-  <div class="legend" id="legend" style="margin-top:10px"></div>
+<div class="card" style="padding:8px">
+  <iframe src="map.html" title="Interactive PISA 2025 map" loading="lazy"
+    style="width:100%;height:800px;border:0;border-radius:8px"></iframe>
 </div>
-<div class="grid">
-  <div class="card"><div id="map" style="height:480px"></div></div>
-  <div class="card" id="info"><p class="note">Click a country on the map to see its numbers.</p></div>
-</div>
-<p class="note">ESCS = PISA index of economic, social and cultural status of the student's family. R² = share of differences in scores explained by ESCS. Grey = no data or unreliable ESCS.</p>
+<p class="note">Map by participant 3. <a href="map.html" target="_blank" rel="noopener">Open the map in a full window</a>. ESCS = PISA index of economic, social and cultural status; R² = share of score differences explained by ESCS.</p>
 
 <!-- 3. SCATTER -->
 <h2>2. Is a weaker link compatible with high scores?</h2>
@@ -115,11 +103,11 @@ const active = new Set(Object.keys(GROUPS));
 const fmt = (v,n=1)=> v==null ? "–" : (+v).toFixed(n);
 
 // group filter checkboxes
-document.getElementById("groupFilters").innerHTML = Object.entries(GROUPS).map(([k,g])=>
+const gf=document.getElementById("groupFilters"); if(gf) gf.innerHTML = Object.entries(GROUPS).map(([k,g])=>
   `<label><input type="checkbox" data-g="${k}" checked> <span class="sw" style="background:${g.color}"></span> ${k==="N"?"N/C":k}</label>`).join(" ");
 document.querySelectorAll("#groupFilters input").forEach(cb=>cb.onchange=()=>{
   cb.checked ? active.add(cb.dataset.g) : active.delete(cb.dataset.g); drawMap();});
-document.getElementById("metric").onchange = drawMap;
+const mt=document.getElementById("metric"); if(mt) mt.onchange = drawMap;
 
 function drawMap(){
   const m = document.getElementById("metric").value;
@@ -201,7 +189,7 @@ function drawContent(){
     || '<div class="todo">2–3 recommendations (participant 5) will appear here.</div>';
 }
 
-drawMap(); drawScatter(); drawContent();
+if(document.getElementById("map")) drawMap(); drawScatter(); drawContent();
 </script>
 </body>
 </html>
