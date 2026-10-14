@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Does family background decide school results? PISA 2025</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--text:#1d2327;--muted:#5d6670;--line:#e2e4e0;--accent:#1f5f8b}
+@media (prefers-color-scheme:dark){:root{--bg:#15181b;--card:#1e2327;--text:#eceff1;--muted:#9aa5ad;--line:#2f373d;--accent:#6cb4e4}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 60px}
+h1{font-size:clamp(1.6rem,4vw,2.3rem);margin:.2em 0}
+h2{margin-top:2.2em;font-size:1.4rem}
+.lead{color:var(--muted);max-width:760px;font-size:1.05rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0}
+.controls{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center}
+select{padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit}
+label{cursor:pointer;font-size:.92rem}
+.legend span{display:inline-flex;align-items:center;gap:6px;margin-right:14px;font-size:.9rem}
+.sw{width:14px;height:14px;border-radius:3px;display:inline-block}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+#info h3{margin:.1em 0}
+#info table{width:100%;border-collapse:collapse;font-size:.92rem}
+#info td{padding:4px 0;border-bottom:1px solid var(--line)}
+#info td:last-child{text-align:right;font-weight:600}
+.warn{background:#fff4d6;color:#5b4300;border-radius:8px;padding:6px 10px;font-size:.85rem;margin-top:8px}
+.todo{border:2px dashed var(--line);border-radius:12px;padding:14px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+small,.note{color:var(--muted);font-size:.85rem}
+footer{margin-top:40px;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body>
+<main>
+
+<!-- 1. HEADER -->
+<h1>Does family background decide school results?</h1>
+<p class="lead">In every country, students from wealthier, better-educated families tend to score higher in PISA. But the strength of that link differs a lot. Where is school success most tied to the family you were born into, and where do school systems level the field?</p>
+
+<!-- 2. MAP -->
+<h2>1. World map</h2>
+<div class="card">
+  <div class="controls">
+    <label>Show: <select id="metric">
+      <option value="r2_avg">Strength of ESCS link (R², %)</option>
+      <option value="slope_avg">Points gained per 1 ESCS unit (slope)</option>
+      <option value="mean_avg">Average PISA score</option>
+      <option value="group">System type (A–D)</option>
+    </select></label>
+    <span id="groupFilters"></span>
+  </div>
+  <div class="legend" id="legend" style="margin-top:10px"></div>
+</div>
+<div class="grid">
+  <div class="card"><div id="map" style="height:480px"></div></div>
+  <div class="card" id="info"><p class="note">Click a country on the map to see its numbers.</p></div>
+</div>
+<p class="note">ESCS = PISA index of economic, social and cultural status of the student's family. R² = share of differences in scores explained by ESCS. Grey = no data or unreliable ESCS.</p>
+
+<!-- 3. SCATTER -->
+<h2>2. Is a weaker link compatible with high scores?</h2>
+<div class="card"><div id="scatter" style="height:520px"></div></div>
+<p class="note">Dashed lines are the averages of 36 OECD countries with reliable ESCS (score 469.8, R² 10.97%). Horizontal bars show ±1 standard error of R². Countries whose ESCS is missing for more than 20% of students are left out.</p>
+
+<!-- 4. PROFILES (participant 4) -->
+<h2>3. Countries with a weaker link</h2>
+<div class="cols" id="profiles"></div>
+
+<!-- 5. SOLUTIONS (participant 5) -->
+<h2>4. The problem and possible solutions</h2>
+<div class="card" id="problem"></div>
+<div class="cols" id="solutions"></div>
+
+<!-- 6. LIMITS + SOURCES -->
+<h2>5. What this dashboard does not show</h2>
+<div class="card">
+  <ul>
+    <li>A link is not a cause: ESCS and scores move together, but this does not prove how or why.</li>
+    <li>A weak link can also mean that everyone scores low (group D), not that the system is better.</li>
+    <li>ESCS is a composite index; countries differ in sampling and in how many students have ESCS data.</li>
+    <li>Some participants are regions or cities, not whole countries (marked on the map).</li>
+    <li>Group borders are fuzzy: countries marked "borderline" are within 2 standard errors of a threshold.</li>
+  </ul>
+</div>
+<footer>
+  Data: OECD PISA 2025 Database, student questionnaire file; calculations by our team (weighted, 10 plausible values, BRR-Fay replicate weights). Verification against OECD, PISA 2025 Results (Volume I).
+  <br>Team: <!-- TODO: names of all 6 participants --> · KSE Sociology, 2026
+</footer>
+</main>
+
+<script src="data.js"></script>
+<script src="content.js"></script>
+<script>
+const D = window.PISA_DATA;
+const GROUPS = {
+  "A": {label:"A: high score, weak ESCS link", color:"#2a9d8f"},
+  "B": {label:"B: high score, strong ESCS link", color:"#e9a23b"},
+  "C": {label:"C: low score, strong ESCS link", color:"#d1495b"},
+  "D": {label:"D: low score, weak ESCS link", color:"#6c7ae0"},
+  "N": {label:"Not classified (unreliable ESCS)", color:"#a8aeb3"}
+};
+const gkey = d => d.group.startsWith("not") ? "N" : d.group[0];
+const METRICS = {
+  r2_avg:{title:"R² (%)",scale:"YlOrRd"},
+  slope_avg:{title:"Slope (points)",scale:"YlOrRd"},
+  mean_avg:{title:"Mean score",scale:"Viridis"}
+};
+const active = new Set(Object.keys(GROUPS));
+const fmt = (v,n=1)=> v==null ? "–" : (+v).toFixed(n);
+
+// group filter checkboxes
+document.getElementById("groupFilters").innerHTML = Object.entries(GROUPS).map(([k,g])=>
+  `<label><input type="checkbox" data-g="${k}" checked> <span class="sw" style="background:${g.color}"></span> ${k==="N"?"N/C":k}</label>`).join(" ");
+document.querySelectorAll("#groupFilters input").forEach(cb=>cb.onchange=()=>{
+  cb.checked ? active.add(cb.dataset.g) : active.delete(cb.dataset.g); drawMap();});
+document.getElementById("metric").onchange = drawMap;
+
+function drawMap(){
+  const m = document.getElementById("metric").value;
+  const rows = D.filter(d=>active.has(gkey(d)));
+  let trace, legend="";
+  const hover = rows.map(d=>`<b>${d.country}</b><br>Score ${fmt(d.mean_avg,0)} · R² ${fmt(d.r2_avg)}%`);
+  if(m==="group"){
+    const keys=Object.keys(GROUPS);
+    trace={type:"choropleth",locations:rows.map(d=>d.iso3),z:rows.map(d=>keys.indexOf(gkey(d))),
+      colorscale:keys.map((k,i)=>[i/(keys.length-1),GROUPS[k].color]),zmin:0,zmax:keys.length-1,
+      showscale:false,text:hover,hoverinfo:"text",marker:{line:{color:"#fff",width:.4}}};
+    legend=keys.map(k=>`<span><i class="sw" style="background:${GROUPS[k].color}"></i>${GROUPS[k].label}</span>`).join("");
+  } else {
+    const cs = D.filter(d=>d.escs_caution && m!=="mean_avg");
+    const ok = rows.filter(d=>!(d.escs_caution && m!=="mean_avg"));
+    trace={type:"choropleth",locations:ok.map(d=>d.iso3),z:ok.map(d=>d[m]),
+      colorscale:METRICS[m].scale,reversescale:m!=="mean_avg"?false:false,
+      colorbar:{title:METRICS[m].title,thickness:12},text:ok.map((d,i)=>hover[rows.indexOf(d)]),
+      hoverinfo:"text",marker:{line:{color:"#fff",width:.4}}};
+    legend = m==="mean_avg" ? "Darker = higher average score." : "Darker = stronger link between ESCS and results (countries with unreliable ESCS are not coloured).";
+  }
+  document.getElementById("legend").innerHTML = legend;
+  Plotly.react("map",[trace],{margin:{t:0,b:0,l:0,r:0},paper_bgcolor:"rgba(0,0,0,0)",
+    geo:{showframe:false,showcoastlines:false,projection:{type:"natural earth"},bgcolor:"rgba(0,0,0,0)",
+         showcountries:true,countrycolor:"#c9ccc8",landcolor:"#eceeea"}},{responsive:true,displayModeBar:false});
+  document.getElementById("map").on("plotly_click",e=>showCountry(e.points[0].location));
+}
+
+function showCountry(iso){
+  const d = D.find(x=>x.iso3===iso); if(!d) return;
+  const g = GROUPS[gkey(d)];
+  document.getElementById("info").innerHTML = `
+    <h3>${d.country}</h3>
+    <p style="margin:0 0 8px"><i class="sw" style="background:${g.color}"></i> ${g.label}${d.group_borderline?" <small>(borderline)</small>":""}</p>
+    <table>
+      <tr><td>Average score</td><td>${fmt(d.mean_avg)} ± ${fmt(d.mean_avg_se)}</td></tr>
+      <tr><td>R² (ESCS explains)</td><td>${fmt(d.r2_avg)}% ± ${fmt(d.r2_avg_se)}</td></tr>
+      <tr><td>Slope (points per 1 ESCS)</td><td>${fmt(d.slope_avg)} ± ${fmt(d.slope_avg_se)}</td></tr>
+      <tr><td>Students in sample</td><td>${d.n_students.toLocaleString("en")}</td></tr>
+      <tr><td>Students without ESCS</td><td>${fmt(d.escs_missing_pct)}%</td></tr>
+    </table>
+    ${d.escs_caution?'<div class="warn">Over 20% of students have no ESCS, so the link may be biased.</div>':""}
+    ${d.is_subnational?'<div class="warn">This is a region/city, not the whole country.</div>':""}
+    ${d.domains_available<3?'<div class="warn">Only science is available for this country.</div>':""}
+    <p class="note">Values ± 1 standard error. Average of science, maths and reading.</p>`;
+}
+
+function drawScatter(){
+  const traces = Object.keys(GROUPS).filter(k=>k!=="N").map(k=>{
+    const r = D.filter(d=>gkey(d)===k);
+    return {type:"scatter",mode:"markers",name:GROUPS[k].label,x:r.map(d=>d.r2_avg),y:r.map(d=>d.mean_avg),
+      error_x:{type:"data",array:r.map(d=>d.r2_avg_se),thickness:1,color:GROUPS[k].color,width:0},
+      text:r.map(d=>d.country),marker:{color:GROUPS[k].color,size:9,opacity:.85,
+        line:{width:r.map(d=>d.group_borderline?2:0),color:"#333"}},
+      hovertemplate:"<b>%{text}</b><br>R² %{x:.1f}%<br>Score %{y:.0f}<extra></extra>"};
+  });
+  Plotly.newPlot("scatter",traces,{
+    xaxis:{title:"Strength of ESCS link (R², %): further right = more unequal"},
+    yaxis:{title:"Average PISA score"},
+    shapes:[{type:"line",x0:10.97,x1:10.97,y0:0,y1:1,yref:"paper",line:{dash:"dash",color:"#888"}},
+            {type:"line",y0:469.8,y1:469.8,x0:0,x1:1,xref:"paper",line:{dash:"dash",color:"#888"}}],
+    legend:{orientation:"h",y:-0.25},margin:{t:10,r:10},paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)"
+  },{responsive:true,displayModeBar:false});
+}
+
+// profiles & solutions come from content.js (participants 4 and 5)
+function drawContent(){
+  const C = window.CONTENT || {};
+  const box = (h,body,src)=>`<div class="card"><h3>${h}</h3><p>${body}</p>${src?`<small>Sources: ${src}</small>`:""}</div>`;
+  document.getElementById("profiles").innerHTML = (C.profiles||[]).map(p=>box(p.country,p.text,p.sources)).join("")
+    || '<div class="todo">Country profiles (participant 4) will appear here.</div>';
+  document.getElementById("problem").innerHTML = C.problem || '<span class="todo">Problem statement (participant 5).</span>';
+  document.getElementById("solutions").innerHTML = (C.solutions||[]).map(s=>box(s.title,s.text,s.sources)).join("")
+    || '<div class="todo">2–3 recommendations (participant 5) will appear here.</div>';
+}
+
+drawMap(); drawScatter(); drawContent();
+</script>
+</body>
+</html>
