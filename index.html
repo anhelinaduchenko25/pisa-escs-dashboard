@@ -65,9 +65,12 @@ footer{margin-top:40px;color:var(--muted);font-size:.85rem}
 <div class="card"><div id="scatter" style="height:520px"></div></div>
 <p class="note">Dashed lines are the averages of 36 OECD countries with reliable ESCS (score 469.8, R² 10.97%). Horizontal bars show ±1 standard error of R². Countries whose ESCS is missing for more than 20% of students are left out.</p>
 
+<div class="card" id="findings"></div>
+
 <!-- 4. PROFILES (participant 4) -->
 <h2>3. Countries with a weaker link</h2>
 <div class="cols" id="profiles"></div>
+<div class="card" id="profilesNote" style="display:none"></div>
 
 <!-- 5. SOLUTIONS (participant 5) -->
 <h2>4. The problem and possible solutions</h2>
@@ -185,9 +188,14 @@ function drawScatter(){
 // profiles & solutions come from content.js (participants 4 and 5)
 function drawContent(){
   const C = window.CONTENT || {};
+  const f = C.findings || [];
+  document.getElementById("findings").innerHTML = f.length
+    ? "<h3 style='margin-top:0'>Key findings</h3><ol>"+f.map(x=>`<li><b>${x.title}</b> ${x.text}</li>`).join("")+"</ol><small>Analysis: participant 2, 85 systems with reliable ESCS.</small>"
+    : '<span class="todo">Key findings (participant 2) will appear here.</span>';
   const box = (h,body,src)=>`<div class="card"><h3>${h}</h3><p>${body}</p>${src?`<small>Sources: ${src}</small>`:""}</div>`;
   document.getElementById("profiles").innerHTML = (C.profiles||[]).map(p=>box(p.country,p.text,p.sources)).join("")
     || '<div class="todo">Country profiles (participant 4) will appear here.</div>';
+  const pn=document.getElementById("profilesNote"); if(C.profilesNote){pn.innerHTML=C.profilesNote;pn.style.display="block";}
   document.getElementById("problem").innerHTML = C.problem || '<span class="todo">Problem statement (participant 5).</span>';
   document.getElementById("solutions").innerHTML = (C.solutions||[]).map(s=>box(s.title,s.text,s.sources)).join("")
     || '<div class="todo">2–3 recommendations (participant 5) will appear here.</div>';
