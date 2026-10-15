@@ -64,6 +64,7 @@ footer{margin-top:40px;color:var(--muted);font-size:.85rem}
 <h2>4. The problem and possible solutions</h2>
 <div class="card" id="problem"></div>
 <div class="cols" id="solutions"></div>
+<div class="card" id="solutionsNote" style="display:none"></div>
 
 <!-- 6. LIMITS + SOURCES -->
 <h2>5. What this dashboard does not show</h2>
@@ -184,6 +185,7 @@ function drawContent(){
   document.getElementById("profiles").innerHTML = (C.profiles||[]).map(p=>box(p.country,p.text,p.sources)).join("")
     || '<div class="todo">Country profiles (participant 4) will appear here.</div>';
   const pn=document.getElementById("profilesNote"); if(C.profilesNote){pn.innerHTML=C.profilesNote;pn.style.display="block";}
+  const sn=document.getElementById("solutionsNote"); if(C.solutionsNote){sn.innerHTML=C.solutionsNote;sn.style.display="block";}
   document.getElementById("problem").innerHTML = C.problem || '<span class="todo">Problem statement (participant 5).</span>';
   document.getElementById("solutions").innerHTML = (C.solutions||[]).map(s=>box(s.title,s.text,s.sources)).join("")
     || '<div class="todo">2–3 recommendations (participant 5) will appear here.</div>';
